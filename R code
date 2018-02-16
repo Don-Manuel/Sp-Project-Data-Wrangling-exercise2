@@ -1,0 +1,31 @@
+library(readxl)
+library(dplyr)
+# loading data
+titanic3 <- read_xls("titanic3.xls")
+write.csv(titanic3, "titanic_original.csv")
+
+# replacing NAs in embark column with "S"
+for(i in 1:length(titanic3$embarked)){
+  if(is.na(titanic3$embarked[i])){
+    titanic3$embarked[i] <- "S"
+  }
+}
+
+# calculating mean age and assigning it to the missing values
+average_age <- mean(titanic3$age, na.rm=TRUE)
+titanic3$age<-sapply(titanic3$age,function(x){if(is.na(x)){return(average_age)}else{return(x)}})
+  #discussion question: another way to fill in the blanks could be to figure out values that make the age distribution more normal.
+  #using the mean is easier to implement
+
+# filling in missing lifeboats
+titanic3$boat <- sapply(titanic3$boat, function(x){if(is.na(x)){return("None")}else{return(x)}})
+
+# dealing with missing cabin numbers
+  #discussion question 1: It does not make sense to try to fill in the missing cabin numbers, since these are non-computable values. It would make as much sense trying to fill in missing names.
+  #discussion question 2: A missing number could mean that the original table was lost or damaged and that it was reconstructed with data from survivors.
+cabinize<-function(x){if(is.na(x)){return(0)}else{return(1)}}
+cabinize<-Vectorize(cabinize)
+titanic3 <- mutate(titanic3, has_cabin_number=cabinize(titanic3$cabin))
+
+# outputting file
+write.csv(titanic3,"titanic_clean.csv")
