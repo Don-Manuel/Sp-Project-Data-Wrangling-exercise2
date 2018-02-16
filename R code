@@ -27,5 +27,6 @@ cabinize<-function(x){if(is.na(x)){return(0)}else{return(1)}}
 cabinize<-Vectorize(cabinize)
 titanic3 <- mutate(titanic3, has_cabin_number=cabinize(titanic3$cabin))
 
-# outputting file
+# outputting file and cleaning up
 write.csv(titanic3,"titanic_clean.csv")
+rm(average_age, cabinize, i, titanic3)
